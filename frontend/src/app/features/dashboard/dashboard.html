@@ -1,77 +1,120 @@
-<div class="flex h-screen bg-gray-100">
+<div class="flex h-screen overflow-hidden bg-gray-50">
 
   <!-- LEFT SIDEBAR -->
-  <div class="w-72 bg-white border-r border-gray-200 flex flex-col">
-    <div class="p-4 border-b">
-      <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-gray-800">Libheros</h1>
-        <button (click)="logout()" class="text-sm text-gray-500 hover:text-red-600">
-          Déconnexion
-        </button>
+  <div class="w-80 bg-white border-r border-gray-200 flex flex-col">
+    <!-- Header -->
+    <div class="p-6 border-b flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">L</div>
+        <h1 class="text-2xl font-bold text-gray-900">Libheros</h1>
       </div>
+      <button (click)="logout()" 
+              class="text-gray-500 hover:text-red-600 transition p-2">
+        <span class="text-xl">⭍</span>
+      </button>
     </div>
 
-    <!-- Bouton Nouvelle Liste -->
+    <!-- New List -->
     <div class="p-4">
       <div class="flex gap-2">
         <input 
           [(ngModel)]="newListName"
-          (keyup.enter)="createNewList()"
-          placeholder="Nom de la nouvelle liste"
-          class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <button (click)="createNewList()" 
-                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          (keyup.enter)="createList()"
+          placeholder="Nouvelle liste..."
+          class="flex-1 px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button (click)="createList()" 
+                class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition">
           +
         </button>
       </div>
     </div>
 
-    <!-- Liste des listes -->
-    <div class="flex-1 overflow-auto px-3">
+    <!-- Lists -->
+    <div class="flex-1 overflow-y-auto px-3 space-y-1">
       <div *ngFor="let list of taskLists()" 
            (click)="selectList(list._id)"
-           class="px-4 py-3 hover:bg-gray-100 rounded-xl cursor-pointer mb-1 flex justify-between items-center"
+           class="group px-5 py-3.5 hover:bg-gray-100 rounded-2xl cursor-pointer flex items-center justify-between transition"
            [class.bg-blue-50]="selectedListId() === list._id">
-        <span class="font-medium">{{ list.name }}</span>
+        <span class="font-medium text-gray-800">{{ list.name }}</span>
+        <span class="text-xs text-gray-400 group-hover:opacity-100 opacity-0">→</span>
       </div>
     </div>
   </div>
 
   <!-- MAIN CONTENT -->
   <div class="flex-1 flex flex-col">
-    <div class="p-6 border-b bg-white">
-      <h2 class="text-2xl font-semibold text-gray-800" *ngIf="selectedListId(); else noList">
-        Mes tâches
+    <!-- Top Bar -->
+    <div class="h-16 bg-white border-b flex items-center px-8 justify-between">
+      <h2 class="text-2xl font-semibold text-gray-800" *ngIf="selectedListId(); else noListSelected">
+        {{ taskLists().find(l => l._id === selectedListId())?.name }}
       </h2>
-      <ng-template #noList>
-        <p class="text-gray-500">Sélectionnez une liste dans la barre latérale</p>
+      <ng-template #noListSelected>
+        <p class="text-gray-500">Sélectionnez une liste pour commencer</p>
       </ng-template>
+
+      <div class="flex items-center gap-4">
+        <button (click)="showCompleted = !showCompleted" 
+                class="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-2xl hover:bg-gray-100 transition">
+          <span>{{ showCompleted ? 'Masquer' : 'Voir' }} terminées</span>
+        </button>
+      </div>
     </div>
 
-    <div class="flex-1 p-6 overflow-auto">
-      <!-- Formulaire nouvelle tâche -->
-      <div *ngIf="selectedListId()" class="bg-white p-4 rounded-2xl shadow mb-6">
-        <div class="grid grid-cols-12 gap-4">
-          <input [(ngModel)]="newTask.shortDescription" placeholder="Description courte" 
-                 class="col-span-5 px-4 py-3 border rounded-xl">
-          <input [(ngModel)]="newTask.dueDate" type="date" 
-                 class="col-span-3 px-4 py-3 border rounded-xl">
-          <button (click)="createTask()" 
-                  class="col-span-4 bg-green-600 text-white py-3 rounded-xl hover:bg-green-700">
-            Ajouter tâche
-          </button>
-        </div>
-      </div>
+    <!-- New Task Form -->
+    <div *ngIf="selectedListId()" class="p-6 bg-white border-b">
+      <div class="flex gap-4">
+        <input 
+          [(ngModel)]="newTask.shortDescription"
+          (keyup.enter)="createNewTask()"
+          placeholder="Que devez-vous faire ?"
+          class="flex-1 px-5 py-4 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg">
+        
+        <input 
+          [(ngModel)]="newTask.dueDate"
+          type="date"
+          [min]="today"
+          class="px-5 py-4 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500">
 
-      <!-- Liste des tâches -->
+        <button (click)="createNewTask()" 
+                class="bg-green-600 hover:bg-green-700 text-white px-8 rounded-3xl font-semibold transition">
+          Ajouter
+        </button>
+      </div>
+    </div>
+
+    <!-- Tasks List -->
+    <div class="flex-1 p-8 overflow-y-auto">
       <div class="space-y-3">
+        <!-- Tasks in progress -->
         <div *ngFor="let task of tasks()" 
-             (click)="openTaskDetail(task)"
-             class="bg-white p-4 rounded-2xl shadow hover:shadow-md cursor-pointer flex items-center gap-4">
-          <input type="checkbox" [checked]="task.isCompleted" (change)="toggleTask(task)">
-          <div class="flex-1">
-            <p [class.line-through]="task.isCompleted" class="font-medium">{{ task.shortDescription }}</p>
-            <p class="text-sm text-gray-500">{{ task.dueDate | date:'short' }}</p>
+             (click)="openDetail(task)"
+             class="bg-white rounded-3xl p-5 hover:shadow-md transition cursor-pointer flex items-start gap-4 group">
+          <input type="checkbox" 
+                 [checked]="task.isCompleted"
+                 (click)="toggleComplete(task); $event.stopImmediatePropagation()"
+                 class="mt-1 w-5 h-5 accent-blue-600">
+          
+          <div class="flex-1 min-w-0">
+            <p [class.line-through]="task.isCompleted" 
+               class="text-lg font-medium text-gray-800 break-words">
+              {{ task.shortDescription }}
+            </p>
+            <p class="text-sm text-gray-500 mt-1">
+              {{ task.dueDate | date:'dd MMMM yyyy' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Completed Tasks -->
+        <div *ngIf="showCompleted && completedTasks().length > 0">
+          <h3 class="text-sm font-semibold text-gray-500 mt-10 mb-4">TERMINÉES</h3>
+          <div *ngFor="let task of completedTasks()" 
+               (click)="openDetail(task)"
+               class="bg-white rounded-3xl p-5 opacity-75 hover:opacity-100 transition cursor-pointer flex items-start gap-4">
+            <input type="checkbox" checked disabled class="mt-1 w-5 h-5 accent-green-600">
+            <div class="flex-1">
+              <p class="line-through text-lg text-gray-600">{{ task.shortDescription }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -79,28 +122,44 @@
   </div>
 
   <!-- RIGHT SIDEBAR -->
-  <!-- RIGHT SIDEBAR -->
-<div class="w-96 bg-white border-l border-gray-200 p-6 overflow-auto" *ngIf="selectedTask(); else emptyRight">
-  <div class="flex justify-between items-center mb-6">
-    <h3 class="font-semibold text-lg">Détail de la tâche</h3>
-    <button (click)="closeTaskDetail()" class="text-gray-400 hover:text-gray-600">✕</button>
-  </div>
-  
-  <div class="space-y-6">
-    <p><strong>Description :</strong> {{ selectedTask()?.shortDescription }}</p>
-    <p *ngIf="selectedTask()?.longDescription"><strong>Détails :</strong> {{ selectedTask()?.longDescription }}</p>
-    <p><strong>Échéance :</strong> {{ selectedTask()?.dueDate | date:'long' }}</p>
+  <div class="w-96 bg-white border-l border-gray-200 flex flex-col" *ngIf="selectedTask(); else emptySidebar">
+    <div class="p-6 border-b flex justify-between items-center">
+      <h3 class="font-semibold text-xl">Détail de la tâche</h3>
+      <button (click)="selectedTask.set(null)" class="text-2xl text-gray-400 hover:text-gray-600">✕</button>
+    </div>
+
+    <div class="flex-1 p-6 space-y-8 overflow-y-auto">
+      <div>
+        <p class="text-sm text-gray-500 mb-1">DESCRIPTION</p>
+        <p class="text-lg leading-relaxed">{{ selectedTask()?.shortDescription }}</p>
+      </div>
+
+      <div *ngIf="selectedTask()?.longDescription">
+        <p class="text-sm text-gray-500 mb-1">NOTES</p>
+        <p class="text-gray-700 leading-relaxed">{{ selectedTask()?.longDescription }}</p>
+      </div>
+
+      <div>
+        <p class="text-sm text-gray-500 mb-1">ÉCHÉANCE</p>
+        <p class="text-xl font-medium">{{ selectedTask()?.dueDate | date:'dd MMMM yyyy' }}</p>
+      </div>
+    </div>
+
+    <div class="p-6 border-t">
+      <button (click)="deleteTask()" 
+              class="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-2xl font-semibold transition">
+        Supprimer cette tâche
+      </button>
+    </div>
   </div>
 
-  <button class="mt-10 w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-medium">
-    Supprimer cette tâche
-  </button>
-</div>
-
-<ng-template #emptyRight>
-  <div class="w-96 bg-white border-l border-gray-200 p-6 text-gray-400 text-center">
-    Cliquez sur une tâche pour voir les détails
-  </div>
-</ng-template>
-
+  <!-- Empty Right Sidebar -->
+  <ng-template #emptySidebar>
+    <div class="w-96 bg-white border-l border-gray-200 flex items-center justify-center text-gray-400">
+      <div class="text-center">
+        <p class="text-4xl mb-3">👆</p>
+        <p>Cliquez sur une tâche<br>pour voir les détails</p>
+      </div>
+    </div>
+  </ng-template>
 </div>

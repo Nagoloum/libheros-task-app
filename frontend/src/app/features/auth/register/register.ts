@@ -9,29 +9,34 @@ import { AuthService } from '../../../services/auth.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
-  styleUrls: ['./register.css']
 })
 export class RegisterComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  registerForm: FormGroup = this.fb.group({
-    firstName: ['', [Validators.required, Validators.minLength(2)]],
-    lastName: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['', [Validators.required]]
-  }, { validators: this.passwordMatchValidator });
-
+  registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  showPassword = false;
+  showConfirmPassword = false;
 
-  passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password')?.value;
-    const confirmPassword = form.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { passwordMismatch: true };
+  constructor() {
+    this.registerForm = this.fb.group({
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      lastName: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required]
+    }, { validators: this.passwordsMatch });
   }
+
+  passwordsMatch(form: FormGroup) {
+    return form.get('password')?.value === form.get('confirmPassword')?.value ? null : { mismatch: true };
+  }
+
+  togglePassword() { this.showPassword = !this.showPassword; }
+  toggleConfirmPassword() { this.showConfirmPassword = !this.showConfirmPassword; }
 
   onSubmit() {
     if (this.registerForm.invalid) return;
@@ -39,14 +44,12 @@ export class RegisterComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const { confirmPassword, ...registerData } = this.registerForm.value;
+    const { confirmPassword, ...data } = this.registerForm.value;
 
-    this.authService.register(registerData).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
-      },
+    this.authService.register(data).subscribe({
+      next: () => this.router.navigate(['/dashboard']),
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Une erreur est survenue lors de l’inscription';
+        this.errorMessage = err.error?.message || "Erreur lors de l'inscription";
         this.isLoading = false;
       }
     });

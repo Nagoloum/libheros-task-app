@@ -2,111 +2,86 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { ListsService } from '../../services/lists.service';
+import { TasksService } from '../../services/tasks.service';
+import { TaskList } from '../../models/task-list.model';
+import { Task } from '../../models/task.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.html',
-  styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit {
 
   private authService = inject(AuthService);
+  private listsService = inject(ListsService);
+  private tasksService = inject(TasksService);
 
-  // States
-  taskLists = signal<any[]>([]);
-  tasks = signal<any[]>([]);
-  completedTasks = signal<any[]>([]);
+  taskLists = signal<TaskList[]>([]);
+  tasks = signal<Task[]>([]);
+  completedTasks = signal<Task[]>([]);
   selectedListId = signal<string | null>(null);
-  selectedTask = signal<any>(null);
+  selectedTask = signal<Task | null>(null);
+  today = new Date().toISOString().split('T')[0];
 
-  // Formulaires
   newListName = '';
-  newTask = {
-    shortDescription: '',
-    longDescription: '',
-    dueDate: ''
-  };
-
+  newTask = { shortDescription: '', longDescription: '', dueDate: '' };
   showCompleted = false;
+  isLoading = false;
 
   ngOnInit() {
-    this.loadMockData();
+    this.loadLists();
   }
 
-  loadMockData() {
-    // Données mock pour voir l'interface
-    this.taskLists.set([
-      { _id: '1', name: 'Courses' },
-      { _id: '2', name: 'Projet Angular' },
-      { _id: '3', name: 'Personnel' }
-    ]);
-
-    this.tasks.set([
-      { 
-        _id: 't1', 
-        shortDescription: 'Acheter du pain', 
-        dueDate: '2026-03-28', 
-        isCompleted: false 
-      },
-      { 
-        _id: 't2', 
-        shortDescription: 'Terminer le composant dashboard', 
-        dueDate: '2026-03-30', 
-        isCompleted: false 
-      }
-    ]);
-
-    this.completedTasks.set([
-      { _id: 't3', shortDescription: 'Nettoyer la maison', dueDate: '2026-03-25', isCompleted: true }
-    ]);
+  loadLists() {
+    this.listsService.getAll().subscribe(lists => this.taskLists.set(lists));
   }
 
-  createNewList() {
+  createList() {
     if (!this.newListName.trim()) return;
-    
-    const newList = {
-      _id: Date.now().toString(),
-      name: this.newListName
-    };
-    
-    this.taskLists.update(lists => [...lists, newList]);
-    this.newListName = '';
+    this.listsService.create({ name: this.newListName }).subscribe(list => {
+      this.taskLists.update(l => [...l, list]);
+      this.newListName = '';
+      this.selectList(list._id);
+    });
   }
 
   selectList(listId: string) {
     this.selectedListId.set(listId);
-    // Simulation de chargement des tâches
-    console.log('Liste sélectionnée :', listId);
+    this.loadTasks(listId);
   }
 
-  createTask() {
-    if (!this.selectedListId() || !this.newTask.shortDescription.trim()) return;
-
-    const newTaskItem = {
-      _id: Date.now().toString(),
-      shortDescription: this.newTask.shortDescription,
-      longDescription: this.newTask.longDescription,
-      dueDate: this.newTask.dueDate || '2026-04-15',
-      isCompleted: false
-    };
-
-    this.tasks.update(tasks => [...tasks, newTaskItem]);
-    this.newTask = { shortDescription: '', longDescription: '', dueDate: '' };
+  loadTasks(listId: string) {
+    this.tasksService.getByList(listId).subscribe(tasks => this.tasks.set(tasks));
+    this.tasksService.getCompleted().subscribe(completed => this.completedTasks.set(completed));
   }
 
-  toggleTask(task: any) {
-    task.isCompleted = !task.isCompleted;
-    this.tasks.update(tasks => [...tasks]); // Trigger update
+  createNewTask() {
+    if (!this.selectedListId() || !this.newTask.shortDescription) return;
+    this.tasksService.create(this.selectedListId()!, this.newTask).subscribe(task => {
+      this.tasks.update(t => [...t, task]);
+      this.newTask = { shortDescription: '', longDescription: '', dueDate: '' };
+    });
   }
 
-  openTaskDetail(task: any) {
+  toggleComplete(task: Task) {
+    this.tasksService.toggleComplete(task._id).subscribe(() => this.loadTasks(this.selectedListId()!));
+  }
+
+  openDetail(task: Task) {
     this.selectedTask.set(task);
   }
 
-  closeTaskDetail() {
-    this.selectedTask.set(null);
+  deleteTask() {
+    if (!this.selectedTask()) return;
+    if (confirm('Supprimer cette tâche ?')) {
+      this.tasksService.delete(this.selectedTask()!._id).subscribe(() => {
+        this.selectedTask.set(null);
+        this.loadTasks(this.selectedListId()!);
+      });
+    }
   }
 
   logout() {

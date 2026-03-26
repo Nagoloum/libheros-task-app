@@ -14,36 +14,26 @@ export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
 
   constructor(private http: HttpClient) {
+    this.loadUserFromToken();
+  }
+
+  private loadUserFromToken() {
     const token = localStorage.getItem('token');
     if (token) {
-      // On pourrait décoder le JWT plus tard pour récupérer l'utilisateur
-      console.log('Token trouvé dans localStorage');
+      // On peut décoder le token si besoin plus tard
+      console.log('Token JWT chargé');
     }
   }
 
   register(data: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
-      tap(response => {
-        console.log('Inscription réussie', response);
-        this.handleAuthSuccess(response);
-      }),
-      catchError(error => {
-        console.error('Erreur inscription:', error);
-        return throwError(() => error);
-      })
+      tap(response => this.handleAuthSuccess(response))
     );
   }
 
   login(data: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
-      tap(response => {
-        console.log('Connexion réussie', response);
-        this.handleAuthSuccess(response);
-      }),
-      catchError(error => {
-        console.error('Erreur connexion:', error);
-        return throwError(() => error);
-      })
+      tap(response => this.handleAuthSuccess(response))
     );
   }
 
@@ -59,5 +49,9 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 }
