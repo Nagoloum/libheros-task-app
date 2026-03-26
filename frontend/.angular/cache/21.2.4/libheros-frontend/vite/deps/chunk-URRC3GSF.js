@@ -641,7 +641,7 @@ var Version = class {
     this.patch = parts.slice(2).join(".");
   }
 };
-var VERSION = new Version("21.2.5");
+var VERSION = new Version("21.2.6");
 var DOC_PAGE_BASE_URL = (() => {
   const full = VERSION.full;
   const isPreRelease = full.includes("-next") || full.includes("-rc") || full === "0.0.0-PLACEHOLDER";
@@ -8032,6 +8032,7 @@ function applyToElementOrContainer(action, renderer, injector, parent, lNodeToHa
       if (parentLView?.[ANIMATIONS]?.leave?.has(tNode.index)) {
         trackLeavingNodes(tNode, rNode);
       }
+      reusedNodes.delete(rNode);
       runLeaveAnimationsWithCallback(parentLView, tNode, injector, (nodeHasLeaveAnimations) => {
         if (reusedNodes.has(rNode)) {
           reusedNodes.delete(rNode);
@@ -8040,6 +8041,7 @@ function applyToElementOrContainer(action, renderer, injector, parent, lNodeToHa
         nativeRemoveNode(renderer, rNode, isComponent2, nodeHasLeaveAnimations);
       });
     } else if (action === 3) {
+      reusedNodes.delete(rNode);
       runLeaveAnimationsWithCallback(parentLView, tNode, injector, () => {
         renderer.destroyNode(rNode);
       });
@@ -12128,7 +12130,7 @@ var ComponentFactory2 = class extends ComponentFactory$1 {
   }
 };
 function createRootTView(rootSelectorOrNode, componentDef, componentBindings, directives) {
-  const tAttributes = rootSelectorOrNode ? ["ng-version", "21.2.5"] : extractAttrsAndClassesFromSelector(componentDef.selectors[0]);
+  const tAttributes = rootSelectorOrNode ? ["ng-version", "21.2.6"] : extractAttrsAndClassesFromSelector(componentDef.selectors[0]);
   let creationBindings = null;
   let updateBindings = null;
   let varsToAllocate = 0;
@@ -26310,4 +26312,4 @@ export {
   RESPONSE_INIT,
   REQUEST_CONTEXT
 };
-//# sourceMappingURL=chunk-T7G56BYI.js.map
+//# sourceMappingURL=chunk-URRC3GSF.js.map

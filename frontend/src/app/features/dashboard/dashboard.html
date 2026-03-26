@@ -1,0 +1,106 @@
+<div class="flex h-screen bg-gray-100">
+
+  <!-- LEFT SIDEBAR -->
+  <div class="w-72 bg-white border-r border-gray-200 flex flex-col">
+    <div class="p-4 border-b">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-800">Libheros</h1>
+        <button (click)="logout()" class="text-sm text-gray-500 hover:text-red-600">
+          Déconnexion
+        </button>
+      </div>
+    </div>
+
+    <!-- Bouton Nouvelle Liste -->
+    <div class="p-4">
+      <div class="flex gap-2">
+        <input 
+          [(ngModel)]="newListName"
+          (keyup.enter)="createNewList()"
+          placeholder="Nom de la nouvelle liste"
+          class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button (click)="createNewList()" 
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          +
+        </button>
+      </div>
+    </div>
+
+    <!-- Liste des listes -->
+    <div class="flex-1 overflow-auto px-3">
+      <div *ngFor="let list of taskLists()" 
+           (click)="selectList(list._id)"
+           class="px-4 py-3 hover:bg-gray-100 rounded-xl cursor-pointer mb-1 flex justify-between items-center"
+           [class.bg-blue-50]="selectedListId() === list._id">
+        <span class="font-medium">{{ list.name }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 flex flex-col">
+    <div class="p-6 border-b bg-white">
+      <h2 class="text-2xl font-semibold text-gray-800" *ngIf="selectedListId(); else noList">
+        Mes tâches
+      </h2>
+      <ng-template #noList>
+        <p class="text-gray-500">Sélectionnez une liste dans la barre latérale</p>
+      </ng-template>
+    </div>
+
+    <div class="flex-1 p-6 overflow-auto">
+      <!-- Formulaire nouvelle tâche -->
+      <div *ngIf="selectedListId()" class="bg-white p-4 rounded-2xl shadow mb-6">
+        <div class="grid grid-cols-12 gap-4">
+          <input [(ngModel)]="newTask.shortDescription" placeholder="Description courte" 
+                 class="col-span-5 px-4 py-3 border rounded-xl">
+          <input [(ngModel)]="newTask.dueDate" type="date" 
+                 class="col-span-3 px-4 py-3 border rounded-xl">
+          <button (click)="createTask()" 
+                  class="col-span-4 bg-green-600 text-white py-3 rounded-xl hover:bg-green-700">
+            Ajouter tâche
+          </button>
+        </div>
+      </div>
+
+      <!-- Liste des tâches -->
+      <div class="space-y-3">
+        <div *ngFor="let task of tasks()" 
+             (click)="openTaskDetail(task)"
+             class="bg-white p-4 rounded-2xl shadow hover:shadow-md cursor-pointer flex items-center gap-4">
+          <input type="checkbox" [checked]="task.isCompleted" (change)="toggleTask(task)">
+          <div class="flex-1">
+            <p [class.line-through]="task.isCompleted" class="font-medium">{{ task.shortDescription }}</p>
+            <p class="text-sm text-gray-500">{{ task.dueDate | date:'short' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <!-- RIGHT SIDEBAR -->
+<div class="w-96 bg-white border-l border-gray-200 p-6 overflow-auto" *ngIf="selectedTask(); else emptyRight">
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="font-semibold text-lg">Détail de la tâche</h3>
+    <button (click)="closeTaskDetail()" class="text-gray-400 hover:text-gray-600">✕</button>
+  </div>
+  
+  <div class="space-y-6">
+    <p><strong>Description :</strong> {{ selectedTask()?.shortDescription }}</p>
+    <p *ngIf="selectedTask()?.longDescription"><strong>Détails :</strong> {{ selectedTask()?.longDescription }}</p>
+    <p><strong>Échéance :</strong> {{ selectedTask()?.dueDate | date:'long' }}</p>
+  </div>
+
+  <button class="mt-10 w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-medium">
+    Supprimer cette tâche
+  </button>
+</div>
+
+<ng-template #emptyRight>
+  <div class="w-96 bg-white border-l border-gray-200 p-6 text-gray-400 text-center">
+    Cliquez sur une tâche pour voir les détails
+  </div>
+</ng-template>
+
+</div>

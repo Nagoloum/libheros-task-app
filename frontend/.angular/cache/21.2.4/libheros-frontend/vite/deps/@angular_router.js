@@ -1,7 +1,7 @@
 import {
   Title
-} from "./chunk-Y2P4GAKA.js";
-import "./chunk-73B5D5YM.js";
+} from "./chunk-CGNM7IHG.js";
+import "./chunk-PNC2EGNJ.js";
 import {
   HashLocationStrategy,
   Location,
@@ -11,15 +11,16 @@ import {
   PathLocationStrategy,
   PlatformNavigation,
   ViewportScroller
-} from "./chunk-EBABSGL5.js";
+} from "./chunk-D2SN3R2G.js";
 import {
   LOCATION_INITIALIZED,
   PlatformLocation
-} from "./chunk-OKAVKWLW.js";
+} from "./chunk-VKTYZOST.js";
 import {
   APP_BOOTSTRAP_LISTENER,
   ApplicationRef,
   Attribute,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Compiler,
   Component,
@@ -91,7 +92,7 @@ import {
   ɵɵloadQuery,
   ɵɵqueryRefresh,
   ɵɵsanitizeUrlOrResourceUrl
-} from "./chunk-T7G56BYI.js";
+} from "./chunk-URRC3GSF.js";
 import {
   BehaviorSubject,
   EMPTY,
@@ -1994,7 +1995,8 @@ var ɵEmptyOutletComponent = class _ɵEmptyOutletComponent {
     args: [{
       template: `<router-outlet />`,
       imports: [RouterOutlet],
-      exportAs: "emptyRouterOutlet"
+      exportAs: "emptyRouterOutlet",
+      changeDetection: ChangeDetectionStrategy.Eager
     }]
   }], null, null);
 })();
@@ -5955,7 +5957,7 @@ function mapToCanDeactivate(providers) {
 function mapToResolve(provider) {
   return (...params) => inject(provider).resolve(...params);
 }
-var VERSION = new Version("21.2.5");
+var VERSION = new Version("21.2.6");
 export {
   ActivatedRoute,
   ActivatedRouteSnapshot,
