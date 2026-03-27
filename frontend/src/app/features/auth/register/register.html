@@ -9,66 +9,91 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             formControlName="firstName"
             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Daniel">
+            placeholder="Daniel"
+          />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             formControlName="lastName"
             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Dupont">
+            placeholder="Dupont"
+          />
         </div>
       </div>
 
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input 
-          type="email" 
+        <input
+          type="email"
           formControlName="email"
           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="vous@email.com">
+          placeholder="Adresse email..."
+        />
       </div>
 
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
-        <input 
-          type="password" 
-          formControlName="password"
-          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="••••••••">
+        <div class="relative">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Mot de passe..."
+            class="w-full px-5 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg pr-12"
+          />
+
+          <button
+            type="button"
+            (click)="togglePassword()"
+            class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          >
+            <lucide-icon [name]="showPassword ? 'EyeOff' : 'Eye'" size="20"></lucide-icon>
+          </button>
+        </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Confirmer le mot de passe</label>
-        <input 
-          type="password" 
-          formControlName="confirmPassword"
-          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="••••••••">
+        <label class="block text-sm font-medium text-gray-700 mb-1"
+          >Confirmer le mot de passe</label
+        >
+        <div class="relative">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            placeholder="Confirmer le mot de passe..."
+            class="w-full px-5 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg pr-12"
+          />
+
+          <button
+            type="button"
+            (click)="toggleConfirmPassword()"
+            class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          >
+            <lucide-icon [name]="showConfirmPassword ? 'EyeOff' : 'Eye'" size="20"></lucide-icon>
+          </button>
+        </div>
       </div>
 
-      <button 
+      <button
         type="submit"
         [disabled]="isLoading || registerForm.invalid"
-        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition disabled:opacity-50">
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition disabled:opacity-50"
+      >
         {{ isLoading ? 'Création du compte...' : 'Créer mon compte' }}
       </button>
     </form>
 
-    <div *ngIf="errorMessage" class="mt-4 text-red-600 text-center text-sm">
-      {{ errorMessage }}
-    </div>
-
     <div class="text-center mt-6">
       <p class="text-gray-600">
-        Déjà un compte ? 
+        Déjà un compte ?
         <a routerLink="/login" class="text-blue-600 hover:underline font-medium">Se connecter</a>
       </p>
     </div>
   </div>
 </div>
+<app-confirm-modal></app-confirm-modal>

@@ -3,21 +3,23 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
-
+import { ModalService } from '../../../services/modal.service';
+import { LucideAngularModule } from 'lucide-angular';
+import { ConfirmModalComponent } from '../../shared/confirm-modal/confirm-modal';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, ConfirmModalComponent],
   templateUrl: './login.html',
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private modalService = inject(ModalService);
   private router = inject(Router);
 
   loginForm: FormGroup;
   isLoading = false;
-  errorMessage = '';
   showPassword = false;
 
   constructor() {
@@ -35,12 +37,16 @@ export class LoginComponent {
     if (this.loginForm.invalid) return;
 
     this.isLoading = true;
-    this.errorMessage = '';
 
     this.authService.login(this.loginForm.value).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => {
+        this.router.navigate(['/dashboard']);
+      },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Email ou mot de passe incorrect';
+        this.modalService.showError(
+          'Erreur de connexion', 
+          err.error?.message || 'Email ou mot de passe incorrect'
+        );
         this.isLoading = false;
       }
     });

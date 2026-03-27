@@ -18,7 +18,7 @@ export class ListsService {
   }
 
   create(data: { name: string }): Observable<TaskList> {
-    return this.http.post<TaskList>(this.apiUrl, data);
+    return this.http.post<TaskList>(this.apiUrl, data); 
   }
 
   delete(id: string): Observable<any> {

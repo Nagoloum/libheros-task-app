@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ListsService } from './lists.service';
 import { CreateTaskListDto } from './dto/create-task-list.dto';
 import { UpdateTaskListDto } from './dto/update-task-list.dto';
@@ -11,7 +21,10 @@ export class ListsController {
   constructor(private readonly listsService: ListsService) {}
 
   @Post()
-  async create(@Body() createTaskListDto: CreateTaskListDto, @CurrentUser() user: any) {
+  async create(
+    @Body() createTaskListDto: CreateTaskListDto,
+    @CurrentUser() user: any,
+  ) {
     return this.listsService.create(createTaskListDto, user.id);
   }
 
@@ -26,13 +39,17 @@ export class ListsController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateTaskListDto: UpdateTaskListDto, @CurrentUser() user: any) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateTaskListDto: UpdateTaskListDto,
+    @CurrentUser() user: any,
+  ) {
     return this.listsService.update(id, updateTaskListDto, user.id);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string, @CurrentUser() user: any) {
     await this.listsService.remove(id, user.id);
-    return { message: 'Liste supprimée avec succès' };
+    return { message: 'Liste et ses tâches supprimées avec succès' };
   }
 }

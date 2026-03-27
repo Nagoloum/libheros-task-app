@@ -1,119 +1,153 @@
-<div class="flex h-screen overflow-hidden bg-gray-50">
-
-  <!-- LEFT SIDEBAR -->
-  <div class="w-80 bg-white border-r border-gray-200 flex flex-col">
+<div class="flex h-screen bg-gray-50 overflow-hidden">
+  <!-- LEFT SIDEBAR  -->
+  <div class="w-72 lg:w-80 bg-white border-r border-gray-200 flex flex-col shadow-sm">
     <!-- Header -->
-    <div class="p-6 border-b flex items-center justify-between">
+    <div class="p-5 flex items-center justify-between bg-white">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">L</div>
-        <h1 class="text-2xl font-bold text-gray-900">Libheros</h1>
+        <div
+          class="w-8 h-8 bg-linear-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-bold"
+        >
+          L
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight text-gray-900">Libheros</h1>
       </div>
-      <button (click)="logout()" 
-              class="text-gray-500 hover:text-red-600 transition p-2">
-        <span class="text-xl">⭍</span>
+      <button (click)="logout()" class="text-gray-400 hover:text-red-600 text-2xl leading-none cursor-pointer">
+        <lucide-icon name="LogOut" size="20"></lucide-icon>
       </button>
     </div>
 
     <!-- New List -->
-    <div class="p-4">
+    <div class="p-5 border-b border-gray-200">
+      <h3 class="text-sm font-medium text-gray-500 mb-2">Ajouter une nouvelle liste</h3>
       <div class="flex gap-2">
-        <input 
+        <input
           [(ngModel)]="newListName"
           (keyup.enter)="createList()"
-          placeholder="Nouvelle liste..."
-          class="flex-1 px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <button (click)="createList()" 
-                class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition">
-          +
+          placeholder="Nom de la nouvelle liste..."
+          class="flex-1 px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+        <button
+          (click)="createList()"
+          class="bg-blue-600 hover:bg-blue-700 text-white w-11 h-11 rounded-2xl flex items-center justify-center text-xl font-bold transition cursor-pointer"
+        >
+        <lucide-icon name="Plus" size="20"></lucide-icon>
         </button>
       </div>
     </div>
 
     <!-- Lists -->
-    <div class="flex-1 overflow-y-auto px-3 space-y-1">
-      <div *ngFor="let list of taskLists()" 
-           (click)="selectList(list._id)"
-           class="group px-5 py-3.5 hover:bg-gray-100 rounded-2xl cursor-pointer flex items-center justify-between transition"
-           [class.bg-blue-50]="selectedListId() === list._id">
-        <span class="font-medium text-gray-800">{{ list.name }}</span>
-        <span class="text-xs text-gray-400 group-hover:opacity-100 opacity-0">→</span>
+    <div class="flex-1 overflow-y-auto p-3 space-y-1">
+      <h3 class="text-lg font-semibold text-gray-800 ml-2 flex items-center gap-3"><lucide-icon name="List" size="20"></lucide-icon> Listes</h3>
+      <div
+        *ngFor="let list of taskLists()"
+        (click)="selectList(list._id)"
+        class="px-4 py-3.5 rounded-2xl cursor-pointer transition flex items-center justify-between hover:bg-gray-100"
+        [class.bg-blue-50]="selectedListId() === list._id"
+      >
+        <li class="font-medium text-gray-800 ml-4"> {{ list.name }}</li>
+        
+        <button
+          (click)="deleteList(list._id, list.name); $event.stopImmediatePropagation()"
+          class="text-gray-400 hover:text-red-600 text-lg leading-none cursor-pointer"
+        >
+          <lucide-icon name="Trash2" size="20"></lucide-icon>
+        </button>
+
       </div>
     </div>
   </div>
 
   <!-- MAIN CONTENT -->
-  <div class="flex-1 flex flex-col">
+  <div class="flex-1 flex flex-col min-w-0">
     <!-- Top Bar -->
-    <div class="h-16 bg-white border-b flex items-center px-8 justify-between">
-      <h2 class="text-2xl font-semibold text-gray-800" *ngIf="selectedListId(); else noListSelected">
-        {{ taskLists().find(l => l._id === selectedListId())?.name }}
+    <div class="h-16 bg-white border-b border-gray-200 flex items-center px-6 justify-between">
+      <h2
+        class="text-xl font-semibold text-gray-800 truncate"
+        *ngIf="selectedListId(); else noSelection"
+      >
+        Liste: <span class="text-blue-600">{{ taskLists().find(l => l._id === selectedListId())?.name }}</span>
       </h2>
-      <ng-template #noListSelected>
-        <p class="text-gray-500">Sélectionnez une liste pour commencer</p>
+      <ng-template #noSelection>
+        <p class="text-red-700 flex gap-3 items-center"><lucide-icon name="AlertTriangle" size="20"></lucide-icon> Veuillez sélectionner une liste pour voir ses tâches !</p>
       </ng-template>
 
-      <div class="flex items-center gap-4">
-        <button (click)="showCompleted = !showCompleted" 
-                class="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-2xl hover:bg-gray-100 transition">
-          <span>{{ showCompleted ? 'Masquer' : 'Voir' }} terminées</span>
-        </button>
-      </div>
+      <button
+        (click)="showCompleted = !showCompleted"
+        class="text-sm font-medium px-4 py-2 rounded-full hover:bg-gray-100 transition flex items-center gap-2 cursor-pointer"
+      >
+      <lucide-icon [name]="showCompleted ? 'EyeOff' : 'Eye'" size="20"></lucide-icon>
+        {{ showCompleted ? 'Masquer terminées' : 'Voir terminées' }}
+      </button>
     </div>
 
-    <!-- New Task Form -->
-    <div *ngIf="selectedListId()" class="p-6 bg-white border-b">
-      <div class="flex gap-4">
-        <input 
+    <!-- New Task -->
+    <div *ngIf="selectedListId()" class="p-6 border-b border-amber-100 bg-white">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input
           [(ngModel)]="newTask.shortDescription"
           (keyup.enter)="createNewTask()"
-          placeholder="Que devez-vous faire ?"
-          class="flex-1 px-5 py-4 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg">
-        
-        <input 
+          placeholder="Nouvelle tâche..." required
+          class="flex-1 px-5 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <input
           [(ngModel)]="newTask.dueDate"
           type="date"
-          [min]="today"
-          class="px-5 py-4 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+          [min]="today" required
+          class="px-5 py-4 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
 
-        <button (click)="createNewTask()" 
-                class="bg-green-600 hover:bg-green-700 text-white px-8 rounded-3xl font-semibold transition">
+        <button
+          (click)="createNewTask()"
+          class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-3xl font-semibold whitespace-nowrap cursor-pointer"
+        >
           Ajouter
         </button>
       </div>
     </div>
 
-    <!-- Tasks List -->
-    <div class="flex-1 p-8 overflow-y-auto">
-      <div class="space-y-3">
-        <!-- Tasks in progress -->
-        <div *ngFor="let task of tasks()" 
-             (click)="openDetail(task)"
-             class="bg-white rounded-3xl p-5 hover:shadow-md transition cursor-pointer flex items-start gap-4 group">
-          <input type="checkbox" 
-                 [checked]="task.isCompleted"
-                 (click)="toggleComplete(task); $event.stopImmediatePropagation()"
-                 class="mt-1 w-5 h-5 accent-blue-600">
-          
-          <div class="flex-1 min-w-0">
-            <p [class.line-through]="task.isCompleted" 
-               class="text-lg font-medium text-gray-800 break-words">
+    <!-- Tasks -->
+    <div class="flex-1 p-6 overflow-y-auto">
+      <div class="space-y-4">
+        <div
+          *ngFor="let task of tasks()"
+          (click)="openDetail(task)"
+          class="bg-white rounded-3xl p-3 hover:shadow transition cursor-pointer flex gap-6 items-center"
+        >
+          <input
+            type="checkbox"
+            [checked]="task.isCompleted"
+            (click)="toggleComplete(task); $event.stopImmediatePropagation()"
+            class=" w-4.5 h-4.5 accent-blue-600 cursor-pointer ml-4"
+          />
+          <div class="flex-1">
+            <p [class.line-through]="task.isCompleted" class="text-[17px] leading-tight">
               {{ task.shortDescription }}
             </p>
-            <p class="text-sm text-gray-500 mt-1">
-              {{ task.dueDate | date:'dd MMMM yyyy' }}
-            </p>
+            <p class="text-sm text-gray-500 mt-1">{{ task.dueDate | date: 'dd MMM yyyy' }}</p>
+            
           </div>
+          <button
+            (click)="deleteCurrentTask(); $event.stopImmediatePropagation()"
+            class="text-gray-400 hover:text-red-600 text-lg leading-none items-center cursor-pointer mr-5"
+          >
+            <lucide-icon name="Trash2" size="20" ></lucide-icon>
+          </button>
         </div>
 
-        <!-- Completed Tasks -->
-        <div *ngIf="showCompleted && completedTasks().length > 0">
-          <h3 class="text-sm font-semibold text-gray-500 mt-10 mb-4">TERMINÉES</h3>
-          <div *ngFor="let task of completedTasks()" 
-               (click)="openDetail(task)"
-               class="bg-white rounded-3xl p-5 opacity-75 hover:opacity-100 transition cursor-pointer flex items-start gap-4">
-            <input type="checkbox" checked disabled class="mt-1 w-5 h-5 accent-green-600">
+        <!-- Taches Terminées -->
+        <div *ngIf="showCompleted && completedTasks().length > 0" class="mt-10">
+          <h3 class="uppercase text-xs tracking-widest text-gray-500 font-medium mb-2">
+            Terminées
+          </h3>
+          <div
+            *ngFor="let task of completedTasks()"
+            (click)="openDetail(task)"
+            class="bg-white rounded-3xl p-5 opacity-75 hover:opacity-100 transition cursor-pointer flex gap-6 items-start"
+          >
+            <input type="checkbox" checked disabled class="ml-2 w-5 h-5 accent-green-600" />
             <div class="flex-1">
-              <p class="line-through text-lg text-gray-600">{{ task.shortDescription }}</p>
+              <p class="line-through text-[17px] text-gray-600">{{ task.shortDescription }}</p>
             </div>
           </div>
         </div>
@@ -121,11 +155,15 @@
     </div>
   </div>
 
-  <!-- RIGHT SIDEBAR -->
-  <div class="w-96 bg-white border-l border-gray-200 flex flex-col" *ngIf="selectedTask(); else emptySidebar">
-    <div class="p-6 border-b flex justify-between items-center">
-      <h3 class="font-semibold text-xl">Détail de la tâche</h3>
-      <button (click)="selectedTask.set(null)" class="text-2xl text-gray-400 hover:text-gray-600">✕</button>
+  <div
+    class="w-96 bg-white border-l border-gray-200 flex flex-col"
+    *ngIf="selectedTask(); else emptySidebar"
+  >
+    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+      <h3 class="font-semibold text-xl flex items-center gap-3"><lucide-icon name="List" size="20"></lucide-icon> Détail de la tâche</h3>
+      <button (click)="selectedTask.set(null)" class="text-2xl text-gray-400 hover:text-red-600 cursor-pointer">
+        ✕
+      </button>
     </div>
 
     <div class="flex-1 p-6 space-y-8 overflow-y-auto">
@@ -141,25 +179,30 @@
 
       <div>
         <p class="text-sm text-gray-500 mb-1">ÉCHÉANCE</p>
-        <p class="text-xl font-medium">{{ selectedTask()?.dueDate | date:'dd MMMM yyyy' }}</p>
+        <p class="text-xl font-medium">{{ selectedTask()?.dueDate | date: 'dd MMMM yyyy' }}</p>
       </div>
     </div>
 
     <div class="p-6 border-t">
-      <button (click)="deleteTask()" 
-              class="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-2xl font-semibold transition">
-        Supprimer cette tâche
+      <button
+        (click)="deleteCurrentTask()"
+        class="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-2xl font-semibold transition flex items-center justify-center gap-3 cursor-pointer"
+      >
+        <lucide-icon name="Trash2" size="20"></lucide-icon> Supprimer cette tâche
       </button>
     </div>
   </div>
 
   <!-- Empty Right Sidebar -->
   <ng-template #emptySidebar>
-    <div class="w-96 bg-white border-l border-gray-200 flex items-center justify-center text-gray-400">
+    <div
+      class="w-96 bg-white border-l border-gray-200 flex items-center justify-center text-gray-400"
+    >
       <div class="text-center">
         <p class="text-4xl mb-3">👆</p>
-        <p>Cliquez sur une tâche<br>pour voir les détails</p>
+        <p>Cliquez sur une tâche<br />pour voir les détails</p>
       </div>
     </div>
   </ng-template>
 </div>
+<app-confirm-modal></app-confirm-modal>

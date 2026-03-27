@@ -20,7 +20,7 @@ export class AuthService {
   private loadUserFromToken() {
     const token = localStorage.getItem('token');
     if (token) {
-      // On peut décoder le token si besoin plus tard
+      
       console.log('Token JWT chargé');
     }
   }
